@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+  <head>
+		<meta charset="utf-8">
+    <title>Food calculator</title>
+		<style>
+		* {
+			box-sizing: border-box;
+		}
+
+		.parent {
+			margin: 0 auto;
+			width: 500px;
+		}
+
+		.form {
+			display: flex;
+			margin-bottom: 15px;
+		}
+
+		.form input {
+			padding: 8px;
+			width: 24%;
+			margin: 0 0.5% 10px 0.5%;
+		}
+
+		h2 {
+			margin-top: 0;
+			margin-bottom: 7px;
+		}
+
+		.table {
+			width: 100%;
+			margin-bottom: 10px;
+		}
+
+		.table td, .table th {
+			padding: 8px;
+			text-align: center;
+			border: 1px solid black;
+		}
+
+		.table td.remove {
+			color: #8b0000;
+			cursor: pointer;
+			text-decoration: none;
+		}
+	
+		.result {
+			text-align: right;
+			margin-right: 10px;
+		}
+		
+		</style>
+  </head>
+  <body>
+    <div class="parent">
+      <div class="form">
+        <input class="name" placeholder="название">
+        <input class="price" placeholder="цена">
+        <input class="amount" placeholder="количество">
+        <input class="add" type="button" value="добавить">
+      </div>
+
+      <h2>Таблица продуктов:</h2>
+      <table class="table">
+        <tr>
+          <th>название</th>
+          <th>цена</th>
+          <th>кол-во</th>
+          <th>сумма</th>
+          <th>удалить</th>
+        </tr>
+      </table>
+      <div class="result">общий итог: <span class="total">0</span>
+			</div>
+    </div>
+
+    <script>
+      const name   = document.querySelector('.name');
+			const price  = document.querySelector('.price');
+			const amount = document.querySelector('.amount');
+			const add    = document.querySelector('.add');
+			const table  = document.querySelector('.table tbody');
+			const total  = document.querySelector('.total');
+					
+			add.addEventListener('click', function () {
+				const tr = document.createElement('tr');
+				
+				allowEdit(createCell(tr, name.value, 'name'));
+				allowEdit(createCell(tr, price.value, 'price'));
+				allowEdit(createCell(tr, amount.value, 'amount'));
+				createCell(tr, price.value * amount.value, 'cost');
+				createCell(tr, 'удалить', 'remove').addEventListener('click', function() {
+					tr.remove();
+					recountTotal();
+				})
+				table.appendChild(tr);
+				recountTotal();
+			});
+			
+			const createCell = (tr, value, name) => {
+				td = document.createElement('td');
+				td.innerHTML = value;
+				td.classList.add(name);
+				tr.appendChild(td);
+				return td;
+			}
+			
+			function allowEdit(td) {
+				td.addEventListener('dblclick', function() {
+					td.textContent = '';
+					const input = document.createElement('input');
+					td.appendChild(input);
+					input.focus();
+				
+					input.addEventListener('keypress', function(e) {
+						if (e.keyCode === 13) {
+							td.textContent = this.value;
+							if (td.classList.contains('price') || td.classList.contains('amount')) {
+								const price = td.parentElement.querySelector('.price');
+								const amount = td.parentElement.querySelector('.amount');
+								const cost = td.parentElement.querySelector('.cost');
+								cost.textContent = price.textContent * amount.textContent;
+								recountTotal();
+							}
+						}
+					});
+				});
+			}
+		
+			const recountTotal = () => {
+				const costs = table.querySelectorAll('.cost');
+				const mass = [];
+				let sum = 0;
+				for (let i = 0; i < costs.length; i++) {
+					if (costs[i] != 'cost') {
+						mass.push(costs[i].textContent);
+						sum += Number(mass[i]);
+					}
+				}
+				total.textContent = sum;
+			}			
+			</script>
+  </body>
+</html>
